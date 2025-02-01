@@ -1,5 +1,6 @@
 import pygame as pg
 from pygame.locals import*
+import sys
 import random
 import math
 
@@ -7,7 +8,7 @@ SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 PLAYER_SPEED = 10
 ENEMY_SPEED = 25
-MAX_JUMP_POWER = 4300
+MAX_JUMP_POWER = 4650
 GRAVITY = 5
 FPS = 30
 
@@ -17,15 +18,10 @@ def __init__():
     load_data()
     reset()
     while True:
-        events = []
-        for event in pg.event.get():
-            events.append(event)
+        events = [event for event in pg.event.get()]  #全てのイベントをeventsに保存
         update()
         draw()
         pg.display.update()
-        for event in events:
-            if event.type == QUIT or pg.key.get_pressed()[K_ESCAPE]:
-                return
         pg.time.Clock().tick(FPS)
 
 def load_data():
@@ -52,6 +48,7 @@ def reset():
     score = 0
 
 def update():
+    quit_pygame()
     if player_alive:
         update_player_x()
         update_player_y()
@@ -61,6 +58,11 @@ def update():
     else:
         if pg.key.get_pressed()[K_r]:
             reset()
+
+def quit_pygame():
+     for event in events:
+        if event.type == QUIT or pg.key.get_pressed()[K_ESCAPE]:
+            sys.exit()
 
 def update_player_x():
     global player, player_dir
@@ -109,7 +111,7 @@ def update_enemies():
 
 def check_collision():
     global player_alive
-    for i in range(len(enemies)):
+    for i in range(len(enemies)):  #if player.collidelistall(enemies) != []:(playerと接触しているenemies内のrectオブジェクトのindexを配列で返す)でもok
         if player.colliderect(enemies[i]):
             player_alive = False
 
