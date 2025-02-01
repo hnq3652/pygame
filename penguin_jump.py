@@ -1,24 +1,29 @@
 import pygame as pg
 from pygame.locals import*
 import random
+import math
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 PLAYER_SPEED = 10
 ENEMY_SPEED = 25
-JUMP_POWER = -65
+MAX_JUMP_POWER = 4300
 GRAVITY = 5
 FPS = 30
 
 def __init__():
+    global events
     pg.init()
     load_data()
     reset()
     while True:
+        events = []
+        for event in pg.event.get():
+            events.append(event)
         update()
         draw()
         pg.display.update()
-        for event in pg.event.get():
+        for event in events:
             if event.type == QUIT or pg.key.get_pressed()[K_ESCAPE]:
                 return
         pg.time.Clock().tick(FPS)
@@ -35,11 +40,11 @@ def load_data():
     font = pg.font.SysFont('meiryo', 55)
 
 def reset():
-    global player, player_dir, is_jumping, jump_speed, enemies, enemies_wait_time, player_alive, fish, score
+    global player, player_dir, is_jumping, jump_power, enemies, enemies_wait_time, player_alive, fish, score
     player = player_image[0].get_rect(x=350, y=520)
     player_dir = 'left'
     is_jumping = False
-    jump_speed = 0
+    jump_power = 0
     enemies = [enemy_image.get_rect(x=100*i, y=0) for i in range(8)]
     enemies_wait_time = [random.randint(30,210) for i in range(8)]
     player_alive = True
@@ -68,16 +73,22 @@ def update_player_x():
     player.clamp_ip((0, 0), (SCREEN_WIDTH, SCREEN_HEIGHT))
 
 def update_player_y():
-    global player, is_jumping, jump_speed
-    if is_jumping:
-        jump_speed = jump_speed + GRAVITY
-        player.y = player.y + jump_speed
-        if player.y > 520:
-            player.y = 520
-            is_jumping = False
-    elif pg.key.get_pressed()[K_SPACE] and not is_jumping:
-        is_jumping = True
-        jump_speed = JUMP_POWER
+    global player, is_jumping, jump_power, jump_speed
+    if is_jumping:  #ジャンプしているとき
+        jump_speed = jump_speed + GRAVITY  #速度の更新
+        player.y = player.y + jump_speed  #座標の更新
+    else:
+        if pg.key.get_pressed()[K_SPACE]:  #スペースキーが押されているなら
+            jump_power += 190
+            jump_power = min(jump_power, MAX_JUMP_POWER)  #天井に当たらないようにする
+        for event in events:
+            if event.type == KEYUP and event.dict['key'] == 32:  #スペースキーが離れたら
+                is_jumping = True
+                jump_speed = -math.sqrt(jump_power)  #初速度上向き
+                jump_power = 50
+    if player.y > 520:
+        player.y = 520
+        is_jumping = False
 
 def update_enemies():
     global enemies, enemies_wait_time
