@@ -7,15 +7,9 @@ PLAYER_SPEED = 5
 FPS = 30
 
 def __init__():
-    global screen, player_image, player, enemy, player_alive, message
     pg.init()
-    screen = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    player_image = pg.transform.smoothscale(pg.image.load("images/robonyan.png").convert_alpha(), (60, 60))
-    player = player_image.get_rect(x=0, y=200)
-    enemy = Rect((500, 500), (60, 60))
-    player_alive = True
-    font = pg.font.Font(None, 60)
-    message = font.render('GAME OVER', True, (255, 255, 255))
+    load_data()
+    reset()
     while True:
         update()
         draw()
@@ -25,11 +19,26 @@ def __init__():
                 return
         pg.time.Clock().tick(FPS)
 
+def load_data():
+    global screen, player_image, font
+    screen = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    player_image = pg.transform.smoothscale(pg.image.load("images/robonyan.png").convert_alpha(), (60, 60))
+    font = pg.font.Font(None, 60)
+
+def reset():
+    global player, enemy, player_alive
+    player = player_image.get_rect(x=0, y=200)
+    enemy = Rect((500, 500), (60, 60))
+    player_alive = True
+
 def update():
     if player_alive:
         update_player()
         update_enemy()
         check_collision()
+    else:
+        if pg.key.get_pressed()[K_SPACE]:
+            reset()
 
 def update_player():
     global player
@@ -60,6 +69,7 @@ def draw():
         screen.blit(player_image, player)
         pg.draw.rect(screen, (0,255,255), enemy)
     else:
-        screen.blit(message, (300,280))
+        message = font.render('press space to continue', True, (255, 255, 255))
+        screen.blit(message, (150,280))
 
 __init__()

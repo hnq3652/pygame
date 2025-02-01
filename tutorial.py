@@ -7,15 +7,9 @@ PLAYER_SPEED = 5  #プレイヤーのスピード
 FPS = 30  #フレームレート
 
 def __init__():  #ゲームの初期設定をする関数を定義する
-    global screen, player_image, player, enemy, player_alive, message  #全ての変数をグローバル化
     pg.init()  #pygameを初期化?実行?する
-    screen = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))  #画面サイズを横800、縦600にする
-    player_image = pg.transform.smoothscale(pg.image.load("images/robonyan.png").convert_alpha(), (60, 60))  #プレイヤーの画像を読み込んで(60,60)の大きさに調整する
-    player = player_image.get_rect(x=0, y=200)  #プレイヤーを位置(0,200)の長方形にする
-    enemy = Rect((500, 500), (60, 60))
-    player_alive = True  #プレイヤーが生きているかのフラグ変数(最初は生きているのでTrue)
-    font = pg.font.Font(None, 60)  #フォントを設定する
-    message = font.render('GAME OVER', True, (255, 255, 255))  #死亡時に表示するメッセージ(文字列,アンチエイリアス,色)を設定する
+    load_data()  #画像の読み込みやフォントの設定
+    reset()  #各変数の設定
     while True:  #ずっと繰り返す
         update()  #プレイヤーの座標など、動きの更新の関数を実行する
         draw()  #描画の関数を実行する
@@ -25,11 +19,26 @@ def __init__():  #ゲームの初期設定をする関数を定義する
                 return  #プログラムを終了する(ゲーム終了)
         pg.time.Clock().tick(FPS)  #30FPSで動くように調整する
 
+def load_data():
+    global screen, player_image, font  #全ての変数をグローバル化
+    screen = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))  #画面サイズを横800、縦600にする
+    player_image = pg.transform.smoothscale(pg.image.load("images/robonyan.png").convert_alpha(), (60, 60))  #プレイヤーの画像を読み込んで(60,60)の大きさに調整する
+    font = pg.font.Font(None, 60)  #フォントを設定する
+
+def reset():
+    global player, enemy, player_alive  #全ての変数をグローバル化
+    player = player_image.get_rect(x=0, y=200)  #プレイヤーを位置(0,200)の長方形にする
+    enemy = Rect((500, 500), (60, 60))
+    player_alive = True  #プレイヤーが生きているかのフラグ変数(最初は生きているのでTrue)
+
 def update():  #動き(プレイヤーの座標など)の更新をする関数を定義する
     if player_alive:  #もしプレイヤーが生きているなら
         update_player()  #プレイヤーの座標の更新
         update_enemy()  #敵の座標の更新
         check_collision()  #当たり判定の更新
+    else:  #もしプレイヤーが死んでいるなら
+        if pg.key.get_pressed()[K_SPACE]:  #もしスペースキーが押されたら
+            reset()  #全ての変数を初期化する(ゲームをリセットする)
 
 def update_player():
     global player  #プレイヤーをグローバル化
@@ -60,6 +69,7 @@ def draw():  #描画をする関数を定義する
         screen.blit(player_image, player)  #player_imageをplayerの位置に配置する
         pg.draw.rect(screen, (0,255,255), enemy)  #水色の四角(敵)を配置する
     else:
-        screen.blit(message, (300,280))  #指定した座標に文字を配置する
+        message = font.render('press space to continue', True, (255, 255, 255))  #死亡時に表示するメッセージ(文字列,アンチエイリアス,色)を設定する
+        screen.blit(message, (150,280))  #指定した座標に文字を配置する
 
 __init__()  #プログラムを実行する
