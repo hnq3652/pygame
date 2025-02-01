@@ -3,7 +3,7 @@ from pygame.locals import*  #pygameモジュールの定数をインポートす
 
 def __init__():  #ゲームの初期設定をする関数を定義する
     global screen, player_color, player  #画面、プレイヤーの色、プレイヤーをグローバル化
-    pg.init()  #pygameを初期化?実行?
+    pg.init()  #pygameを初期化?実行?する
     screen = pg.display.set_mode((800, 600))  #画面サイズを横800、縦600にする
     player_color = (0, 255, 255)  #プレイヤーの色を水色(カラーコード:00ffff)にする
     player = Rect((0, 200), (60, 60))  #プレイヤーを座標(x,y)=(0,200)、(横,縦)=(60,60)の長方形にする
